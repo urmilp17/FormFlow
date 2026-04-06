@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FormFlow</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="dashboard-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-puzzle-piece"></i>
+                <span>FormFlow</span>
+            </div>
+            <div class="nav-links">
+                <span class="user-greeting" id="userGreeting">Welcome, User!</span>
+                <button id="logoutBtn" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Step 1: Input Method -->
+            <section class="card" id="step1">
+                <h2><i class="fas fa-upload"></i> Select Input Method</h2>
+                
+                <!-- Form Creation Options -->
+                <div class="creation-options">
+                    <button class="option-card active" data-method="csv">
+                        <i class="fas fa-file-csv"></i>
+                        <h3>Upload CSV</h3>
+                        <p>Import fields from your CSV file</p>
+                    </button>
+                    <button class="option-card" data-method="gsheet">
+                        <i class="fab fa-google"></i>
+                        <h3>Google Sheet</h3>
+                        <p>Connect and import from Google Sheets</p>
+                    </button>
+                    <button class="option-card" data-method="scratch">
+                        <i class="fas fa-pencil-alt"></i>
+                        <h3>Build from Scratch</h3>
+                        <p>Create your form manually</p>
+                    </button>
+                </div>
+
+                <!-- CSV Upload Section -->
+                <div id="csv-section" class="input-section active">
+                    <div class="file-upload">
+                        <input type="file" id="csvFile" accept=".csv" class="file-input">
+                        <label for="csvFile" class="file-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose CSV File</span>
+                            <p class="file-hint">or drag and drop</p>
+                        </label>
+                        <div id="csvFileName" class="file-name"></div>
+                    </div>
+                    <button id="loadCsvBtn" class="btn btn-primary">
+                        <i class="fas fa-spinner fa-spin d-none"></i>
+                        <span>Load CSV</span>
+                    </button>
+                </div>
+
+                <!-- Google Sheet Section -->
+                <div id="gsheet-section" class="input-section">
+                    <div class="input-group">
+                        <label for="sheetUrl">Google Sheet URL</label>
+                        <input type="url" id="sheetUrl" 
+                               placeholder="https://docs.google.com/spreadsheets/d/..." 
+                               class="input-field">
+                    </div>
+                    <button id="loadGSheetBtn" class="btn btn-primary">
+                        <i class="fas fa-spinner fa-spin d-none"></i>
+                        <span>Load Google Sheet</span>
+                    </button>
+                </div>
+
+                <!-- Build from Scratch Section -->
+                <div id="scratch-section" class="input-section">
+                    <div class="form-builder-header">
+                        <h3>Start Building Your Form</h3>
+                        <p>Add fields to create your custom form</p>
+                    </div>
+                    
+                    <div class="field-types">
+                        <button class="field-type-btn" data-type="text">
+                            <i class="fas fa-font"></i>
+                            <span>Text</span>
+                        </button>
+                        <button class="field-type-btn" data-type="number">
+                            <i class="fas fa-hashtag"></i>
+                            <span>Number</span>
+                        </button>
+                        <button class="field-type-btn" data-type="email">
+                            <i class="fas fa-envelope"></i>
+                            <span>Email</span>
+                        </button>
+                        <button class="field-type-btn" data-type="date">
+                            <i class="fas fa-calendar"></i>
+                            <span>Date</span>
+                        </button>
+                        <button class="field-type-btn" data-type="select">
+                            <i class="fas fa-list"></i>
+                            <span>Dropdown</span>
+                        </button>
+                        <button class="field-type-btn" data-type="textarea">
+                            <i class="fas fa-paragraph"></i>
+                            <span>Text Area</span>
+                        </button>
+                    </div>
+
+                    <div id="scratchFields" class="scratch-fields">
+                        <!-- Fields will be added here -->
+                    </div>
+
+                    <div class="scratch-actions">
+                        <button id="createFromScratchBtn" class="btn btn-primary">
+                            <i class="fas fa-spinner fa-spin d-none"></i>
+                            <span>Create Schema</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Show Data Section -->
+            <section class="card" id="showDataSection">
+                <h2><i class="fas fa-table"></i> Show Data</h2>
+                
+                <div class="data-controls">
+                    <div class="database-selector" style="flex: 1;">
+                        <div class="form-group">
+                            <label for="dataDatabaseSelect">Select Database</label>
+                            <select id="dataDatabaseSelect" class="input-field">
+                                <option value="">-- Select a database --</option>
+                            </select>
+                        </div>
+                        <button id="loadDataBtn" class="btn btn-primary" disabled>
+                            <i class="fas fa-sync-alt"></i>
+                            Load Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Table Container -->
+                <div id="dataTableContainer" class="data-table-container" style="display: none;">
+                    <div class="table-header">
+                        <h3><i class="fas fa-database"></i> Submissions Data</h3>
+                        <button id="downloadDataBtn" class="btn btn-success">
+                            <i class="fas fa-download"></i>
+                            Download Data as CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="dataTable" class="data-table">
+                            <thead>
+                                <tr id="tableHeader">
+                                    <!-- Headers will be dynamically added -->
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Data rows will be dynamically added -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="rowCount">0 rows</span>
+                    </div>
+                </div>
+
+                <!-- No Data Message -->
+                <div id="noDataMessage" class="no-data-message" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>No submissions found in this database</p>
+                </div>
+            </section>
+
+            <!-- Step 2: Schema Editor -->
+            <section class="card" id="step2" style="display: none;">
+                <h2><i class="fas fa-edit"></i> Review & Edit Schema</h2>
+                <div id="schemaEditor"></div>
+                <div class="actions">
+                    <button id="updateSchemaBtn" class="btn btn-secondary">
+                        <i class="fas fa-spinner fa-spin d-none"></i>
+                        <span>Update Schema</span>
+                    </button>
+                    <button id="backToInputBtn" class="btn btn-outline">Back to Input</button>
+                </div>
+            </section>
+
+            <!-- Step 3: Outputs -->
+            <section class="card" id="step3" style="display: none;">
+                <h2><i class="fas fa-download"></i> Outputs</h2>
+                
+                                <!-- Database Creation Section -->
+                                <div class="outputs">
+                                    <div class="output-column">
+                                        <h3><i class="fas fa-code"></i> Schema JSON</h3>
+                                        <div class="json-viewer">
+                                            <pre id="schemaJson"></pre>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="output-column">
+                                        <h3><i class="fab fa-whatsapp"></i> Flow JSON (WhatsApp-ready)</h3>
+                                        <div class="json-viewer">
+                                            <pre id="flowJson"></pre>
+                                        </div>
+                                        <div class="flow-actions">
+                                            <button id="buildFlowBtn" class="btn btn-primary">
+                                                <i class="fas fa-spinner fa-spin d-none"></i>
+                                                <span>Build Conversational Flow</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                <div class="database-section">
+                    <h3><i class="fas fa-database"></i> Database Management</h3>
+                    
+                    <!-- Existing Databases Dropdown -->
+                    <div class="database-selector">
+                        <div class="form-group">
+                            <label for="databaseSelect">Select Existing Database</label>
+                            <select id="databaseSelect" class="input-field">
+                                <option value="">-- Select a database --</option>
+                            </select>
+                        </div>
+                        <button id="loadDatabaseBtn" class="btn btn-secondary">
+                            <i class="fas fa-database"></i>
+                            Load Database
+                        </button>
+                    </div>
+
+                    <div class="database-divider">
+                        <span>OR</span>
+                    </div>
+
+                    <!-- Create New Database -->
+                    <div class="create-database">
+                        <div class="form-group">
+                            <label for="databaseName">Create New Database</label>
+                            <input type="text" id="databaseName" 
+                                   placeholder="Enter database name (e.g., student_registration)" 
+                                   class="input-field">
+                            <small class="hint">This will create a new database to store form responses</small>
+                        </div>
+                        <button id="createDatabaseBtn" class="btn btn-success">
+                            <i class="fas fa-plus-circle"></i>
+                            Create Database
+                        </button>
+                    </div>
+
+                    <!-- Database Info Card (shown when database is selected/created) -->
+                    <div id="databaseInfoCard" class="database-info-card" style="display: none;">
+                        <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> Active Database</h4>
+                        <p><strong>Name:</strong> <span id="activeDatabaseName"></span></p>
+                        <p><strong>Status:</strong> <span class="badge success">Ready to store responses</span></p>
+                        <div class="database-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Contacts</span>
+                                <span class="stat-value" id="contactCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Submissions</span>
+                                <span class="stat-value" id="submissionCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Number Input -->
+                <div class="phone-section">
+                    <h3><i class="fas fa-phone"></i>Contact Information</h3>
+                    <div class="phone-input-group">
+                        <div class="form-group">
+                            <label for="phoneNumber">Enter Phone Number</label>
+                            <input type="tel" id="phoneNumber" 
+                                   placeholder="e.g., 1234567890" 
+                                   class="input-field">
+                            
+                            <small class="hint">This phone will receive the form.</small>
+                        </div>
+                        <button id="addContactBtn" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            Add Contact
+                        </button>
+                    </div>
+                </div> 
+                
+                <div class="initialize-section">
+                    <button id="initializeFlowBtn" class="btn btn-success btn-large">
+                        <i class="fas fa-rocket"></i>
+                        Initialize Flow & Start Form
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modals -->
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle" style="color: var(--whatsapp-green);"></i> Confirm Initialization</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px; color: var(--gray);">Please review the following details before proceeding:</p>
+                
+                <div class="confirm-details" style="background: var(--light); padding: 20px; border-radius: var(--border-radius);">
+                    <!-- Firebase UID (updated label) -->
+                    <div class="confirm-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--gray-light);">
+                        <strong style="display: block; margin-bottom: 8px; color: var(--dark);">
+                            <i class="fas fa-user" style="color: var(--whatsapp-green); margin-right: 8px;"></i>Firebase UID:
+                        </strong>
+                        <code id="confirmUserId" style="background: white; padding: 8px; border-radius: 4px; display: block; word-break: break-all;"></code>
+                    </div>
+
+                    <!-- Database Name (updated label) -->
+                    <div class="confirm-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--gray-light);">
+                        <strong style="display: block; margin-bottom: 8px; color: var(--dark);">
+                            <i class="fas fa-database" style="color: var(--whatsapp-green); margin-right: 8px;"></i>Database Name:
+                        </strong>
+                        <code id="confirmDatabase" style="background: white; padding: 8px; border-radius: 4px; display: block;"></code>
+                    </div>
+
+                    <!-- Contact Count -->
+                    <div class="confirm-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--gray-light);">
+                        <strong style="display: block; margin-bottom: 8px; color: var(--dark);">
+                            <i class="fas fa-users" style="color: var(--whatsapp-green); margin-right: 8px;"></i>Total Contacts:
+                        </strong>
+                        <code id="confirmContactCount" style="background: white; padding: 8px; border-radius: 4px; display: block;"></code>
+                    </div>
+
+                    <!-- Conversational Flow -->
+                    <div class="confirm-item">
+                        <strong style="display: block; margin-bottom: 8px; color: var(--dark);">
+                            <i class="fab fa-whatsapp" style="color: var(--whatsapp-green); margin-right: 8px;"></i>Conversational Flow:
+                        </strong>
+                        <div style="max-height: 200px; overflow-y: auto; background: #1e1e1e; border-radius: 4px; padding: 10px;">
+                            <pre id="confirmFlow" style="color: #d4d4d4; font-size: 0.85rem; margin: 0; white-space: pre-wrap;"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 20px; color: var(--gray); font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="color: var(--whatsapp-green);"></i>
+                    This will initialize the form and send templates to all contacts in the database.
+                </p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-outline modal-close">Cancel</button>
+                <button id="confirmInitializeBtn" class="btn btn-success">
+                    <i class="fas fa-spinner fa-spin d-none"></i>
+                    <span>Confirm & Initialize</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary modal-close">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Success</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary modal-close">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Field Modal (for scratch builder) -->
+    <div id="addFieldModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Add Field</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addFieldForm">
+                    <div class="form-group">
+                        <label>Field Name</label>
+                        <input type="text" id="fieldName" placeholder="e.g., full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input type="text" id="fieldLabel" placeholder="e.g., Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Input Type</label>
+                        <select id="fieldInputType" required>
+                            <option value="text">Text</option>
+                            <option value="number">Number</option>
+                            <option value="email">Email</option>
+                            <option value="date">Date</option>
+                            <option value="select">Dropdown</option>
+                            <option value="textarea">Text Area</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="optionsGroup" style="display: none;">
+                        <label>Options (comma separated)</label>
+                        <input type="text" id="fieldOptions" placeholder="e.g., Option 1, Option 2, Option 3">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="fieldRequired">
+                            Required
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Validation Rule (optional)</label>
+                        <input type="text" id="fieldValidation" placeholder="e.g., ^[A-Za-z]+$">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close">Cancel</button>
+                <button class="btn btn-primary" id="saveFieldBtn">Add Field</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Firebase and other scripts first -->
+    <script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore-compat.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Load dashboard.js as regular script, not module -->
+    <script src="dashboard.js"></script>
+</body>
+</html>
